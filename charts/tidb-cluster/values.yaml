@@ -772,6 +772,16 @@ scheduledBackup:
   # you can create the secret by:
   # kubectl create secret generic backup-secret --from-literal=user=root --from-literal=password=<password>
   secretName: backup-secret
+
+  # backup to azureblob
+  azureblob: {}
+  # container: ""
+  # prefix: ""
+  # secretName is the name of the secret which stores blob object store account id and sas key
+  # You can create the secret by:
+  # kubectl create secret generic azureblob-backup-secret --from-literal=account=<account> --from-literal=key=<key>
+  # secretName: azureblob-backup-secret
+
   # backup to gcp
   gcp: {}
   # bucket: ""

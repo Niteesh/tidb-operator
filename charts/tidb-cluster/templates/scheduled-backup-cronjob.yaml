@@ -70,6 +70,18 @@ spec:
             - name: TZ
               value: {{ .Values.timezone | default "UTC" }}
           {{- end }}
+          {{- if .Values.scheduledBackup.azureblob.secretName}}
+            - name: RCLONE_AZUREBLOB_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.scheduledBackup.azureblob.secretName }}
+                  key: key
+            - name: RCLONE_AZUREBLOB_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.scheduledBackup.azureblob.secretName }}
+                  key: account
+          {{- end }}
           {{- if .Values.scheduledBackup.gcp }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /gcp/credentials.json

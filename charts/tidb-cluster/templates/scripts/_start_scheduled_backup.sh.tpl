@@ -37,6 +37,29 @@ echo "Reset TiKV GC life time to ${gc_life_time}"
 /usr/bin/mysql -h${host} -P4000 -u${TIDB_USER} ${password_str} -Nse "update mysql.tidb set variable_value='${gc_life_time}' where variable_name='tikv_gc_life_time';"
 /usr/bin/mysql -h${host} -P4000 -u${TIDB_USER} ${password_str} -Nse "select variable_name,variable_value from mysql.tidb where variable_name='tikv_gc_life_time';"
 
+
+{{- if .Values.scheduledBackup.azureblob }}
+# Once we know there are no more credentials that will be logged we can run with -x
+set -x
+bucket={{ .Values.scheduledBackup.azureblob.container }}
+
+cat <<EOF > /tmp/rclone.conf
+[azureblob]
+type = azureblob
+EOF
+
+cd "${backupBase}"
+{{- if .Values.scheduledBackup.azureblob.prefix }}
+tar -cf - "${backupName}" | pigz -p 16 \
+  | rclone --config /tmp/rclone.conf rcat azureblob:${bucket}/{{ .Values.scheduledBackup.azureblob.prefix }}/${backupName}/${backupName}.tgz
+{{- else }}
+tar -cf - "${backupName}" | pigz -p 16 \
+  | rclone --config /tmp/rclone.conf rcat azureblob:${bucket}/${backupName}/${backupName}.tgz
+{{- end }}
+{{- end }}
+
+
+
 {{- if .Values.scheduledBackup.gcp }}
 # Once we know there are no more credentials that will be logged we can run with -x
 set -x
